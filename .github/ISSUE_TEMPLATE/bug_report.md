@@ -3,7 +3,8 @@ name: Bug report
 about: Create a report to help us improve
 title: ''
 labels: ''
-assignees: 'ospfranco'
+assignees: ''
+
 ---
 
 BEFORE YOU START!!! DID YOU TAKE A LOOK AT THE DOCUMENTATION?
