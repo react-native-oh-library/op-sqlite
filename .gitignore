@@ -68,6 +68,10 @@ android/app/libs
 android/keystores/debug.keystore
 android/.cxx
 
+# HarmonyOS
+harmony/rn_op_sqlite/build
+harmony/rn_op_sqlite/oh_modules
+
 # Expo
 .expo/*
 

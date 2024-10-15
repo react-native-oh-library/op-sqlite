@@ -1,21 +1,11 @@
-![benchmark](benchmark.jpg)
+# @react-native-oh-tpl/op-sqlite
 
-Created by [@ospfranco](https://twitter.com/ospfranco). **Please consider sponsoring!**.
+## 文档地址 / Documentation URL 
 
-OP-SQLite has grown large to cover a lot of plugins, sqlite versions and APIs. Please read the full documentation before opening an issue.
+[中文 / Chinese](https://gitee.com/react-native-oh-library/usage-docs/blob/master/zh-cn/@OP-Engineering-op-sqlite.md)
 
-[See the docs](https://ospfranco.notion.site/OP-SQLite-Documentation-a279a52102464d0cb13c3fa230d2f2dc?pvs=4)
+## Codegen
 
-Some of the big and external (back-ends, out-of-tree features, plugins) supported features:
+## 请悉知 / Acknowledgements
 
-- Vanilla sqlite ofc
-- Libsql is supported as a sqlite backend
-- SQLCipher is supported as a sqlite backend
-- FTS5 plugin
-- cr-sqlite plugin
-- sqlite-vec plugin
-- Reactive queries (currently with some issues, please donate)
-
-# License
-
-MIT License.
+本项目基于 [The MIT License (MIT)](https://github.com/react-native-oh-library/op-sqlite/blob/sig/LICENSE) ，请自由地享受和参与开源。

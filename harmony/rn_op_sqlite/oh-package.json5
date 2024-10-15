@@ -1,0 +1,13 @@
+{
+  "license": "MIT",
+  "types": "",
+  "devDependencies": {
+  },
+  "name": "@react-native-oh-tpl/op-sqlite",
+  "description": "Next generation SQLite for React Native",
+  "main": "index.ets",
+  "version": "8.0.2-0.0.1",
+  "dependencies": {
+    "@rnoh/react-native-openharmony": "file:../libs/react_native_openharmony-prerelease.har"
+  }
+}
