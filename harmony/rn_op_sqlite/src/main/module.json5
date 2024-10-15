@@ -1,0 +1,9 @@
+{
+  "module": {
+    "name": "rn_op_sqlite",
+    "type": "har",
+    "deviceTypes": [
+      "default"
+    ]
+  }
+}

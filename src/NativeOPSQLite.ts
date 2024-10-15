@@ -7,6 +7,8 @@ export interface Spec extends TurboModule {
     ANDROID_DATABASE_PATH: string;
     ANDROID_FILES_PATH: string;
     ANDROID_EXTERNAL_FILES_PATH: string;
+    HARMONY_DATABASE_PATH: string;
+    HARMONY_FILES_PATH: string;
   };
 
   install(): boolean;

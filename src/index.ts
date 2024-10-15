@@ -1,4 +1,6 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, TurboModuleRegistry } from 'react-native';
+
+const NativeOPSQLite = TurboModuleRegistry.getEnforcing('OPSQLite') ? TurboModuleRegistry.getEnforcing('OPSQLite') : NativeModules.OPSQLite;
 
 declare global {
   function nativeCallSyncHook(): unknown;
@@ -6,18 +8,18 @@ declare global {
 }
 
 if (global.__OPSQLiteProxy == null) {
-  if (NativeModules.OPSQLite == null) {
+  if (NativeOPSQLite == null) {
     throw new Error('Base module not found. Maybe try rebuilding the app.');
   }
 
-  if (NativeModules.OPSQLite.install == null) {
+  if (NativeOPSQLite.install == null) {
     throw new Error(
       'Failed to install op-sqlite: React Native is not running on-device. OPSQLite can only be used when synchronous method invocations (JSI) are possible. If you are using a remote debugger (e.g. Chrome), switch to an on-device debugger (e.g. Flipper) instead.'
     );
   }
 
   // Call the synchronous blocking install() function
-  const result = NativeModules.OPSQLite.install();
+  const result = NativeOPSQLite.install();
   if (result !== true) {
     throw new Error(
       `Failed to install op-sqlite: The native OPSQLite Module could not be installed! Looks like something went wrong when installing JSI bindings, check the native logs for more info`
@@ -41,9 +43,11 @@ export const {
   ANDROID_DATABASE_PATH,
   ANDROID_FILES_PATH,
   ANDROID_EXTERNAL_FILES_PATH,
-} = !!NativeModules.OPSQLite.getConstants
-  ? NativeModules.OPSQLite.getConstants()
-  : NativeModules.OPSQLite;
+  HARMONY_DATABASE_PATH,
+  HARMONY_FILES_PATH
+} = ((TurboModuleRegistry.getEnforcing('OPSQLite') && TurboModuleRegistry.getEnforcing('OPSQLite')?.getConstants) || !!NativeModules.OPSQLite.getConstants)
+    ? (TurboModuleRegistry?.getEnforcing('OPSQLite')?.getConstants ? TurboModuleRegistry.getEnforcing('OPSQLite')!.getConstants!() : NativeModules.OPSQLite.getConstants())
+    : NativeModules.OPSQLite;
 
 /**
  * Object returned by SQL Query executions {
@@ -59,10 +63,21 @@ export type QueryResult = {
   insertId?: number;
   rowsAffected: number;
   res?: any[];
-  rows?: any[];
+  rows?: {
+    /** Raw array with all dataset */
+    _array: any[];
+    /** The length of the dataset */
+    length: number;
+    /** A convenience function to access the index based the row object
+     * @param idx the row index
+     * @returns the row structure identified by column names
+     */
+    item: (idx: number) => any;
+  };
   // An array of intermediate results, just values without column names
   rawRows?: any[];
   columnNames?: string[];
+
   /**
    * Query metadata, available only for select query results
    */
@@ -155,11 +170,11 @@ export type DB = {
   updateHook: (
     callback?:
       | ((params: {
-          table: string;
-          operation: UpdateHookOperation;
-          row?: any;
-          rowId: number;
-        }) => void)
+        table: string;
+        operation: UpdateHookOperation;
+        row?: any;
+        rowId: number;
+      }) => void)
       | null
   ) => void;
   commitHook: (callback?: (() => void) | null) => void;
@@ -201,6 +216,22 @@ const locks: Record<
   string,
   { queue: PendingTransaction[]; inProgress: boolean }
 > = {};
+
+// Enhance some host functions
+// Add 'item' function to result object to allow the sqlite-storage typeorm driver to work
+function enhanceQueryResult(result: QueryResult): void {
+  // Add 'item' function to result object to allow the sqlite-storage typeorm driver to work
+  if (result.rows == null) {
+    result.rows = {
+      _array: [],
+      length: 0,
+      item: (idx: number) => result.rows?._array[idx],
+    };
+  } else {
+    result.res = result.rows._array;
+    result.rows.item = (idx: number) => result.rows?._array[idx];
+  }
+}
 
 function enhanceDB(db: DB, options: any): DB {
   const lock = {
@@ -260,11 +291,7 @@ function enhanceDB(db: DB, options: any): DB {
       });
 
       const result = await db.executeWithHostObjects(query, sanitizedParams);
-
-      // Fix this on the native side
-      // @ts-ignore
-      result.rows = result.rows?._array ?? [];
-
+      enhanceQueryResult(result);
       return result;
     },
     execute: async (
@@ -295,11 +322,12 @@ function enhanceDB(db: DB, options: any): DB {
 
       let res = {
         ...intermediateResult,
-        rows,
+        rows: {
+          _array: rows,
+          length: rows.length,
+          item: (idx: number) => rows[idx],
+        },
       };
-
-      delete res.rawRows;
-
       return res;
     },
     prepareStatement: (query: string) => {
@@ -319,9 +347,7 @@ function enhanceDB(db: DB, options: any): DB {
         },
         execute: async () => {
           const res = await stmt.execute();
-          // TODO fix on the native side
-          // @ts-ignore
-          res.rows = res.rows?._array;
+          enhanceQueryResult(res);
           return res;
         },
       };
@@ -337,7 +363,30 @@ function enhanceDB(db: DB, options: any): DB {
             `OP-Sqlite Error: Database: ${options.url}. Cannot execute query on finalized transaction`
           );
         }
-        return await enhancedDb.execute(query, params);
+        let intermediateResult = await enhancedDb.execute(query, params);
+        let rows: any[] = [];
+        for (let i = 0; i < (intermediateResult.rawRows?.length ?? 0); i++) {
+          let row: any = {};
+          for (
+            let j = 0;
+            j < intermediateResult.columnNames!.length ?? 0;
+            j++
+          ) {
+            let columnName = intermediateResult.columnNames![j]!;
+            row[columnName] = intermediateResult.rawRows![i][j];
+          }
+          rows.push(row);
+        }
+
+        let res = {
+          ...intermediateResult,
+          rows: {
+            _array: rows,
+            length: 0,
+            item: (idx: number) => rows[idx],
+          },
+        };
+        return res;
       };
 
       const commit = async (): Promise<QueryResult> => {
@@ -453,7 +502,7 @@ export const moveAssetsDatabase = async (args: {
   path?: string;
   overwrite?: boolean;
 }): Promise<boolean> => {
-  return NativeModules.OPSQLite.moveAssetsDatabase(args);
+  return NativeOPSQLite.moveAssetsDatabase(args);
 };
 
 export const isSQLCipher = (): boolean => {
