@@ -7,7 +7,7 @@ const path = require('path');
 const fs = require('fs');
 
 // 实现自定义OPSQLITE插件
-export function opSqlitePlugin(options: OnlineSignOptions): HvigorPlugin {
+export function opSqlitePlugin(rootPackagePath?: string, options: OnlineSignOptions): HvigorPlugin {
   return {
     pluginId: 'opSqlitePluginId',
     context() {
@@ -26,7 +26,11 @@ export function opSqlitePlugin(options: OnlineSignOptions): HvigorPlugin {
       let sqliteFlags = '';
       let enableFTS5 = true;
       let useSqliteVec = false;
-      let filePath = path.join(__dirname, '../../../../../package.json');
+      let filePath = rootPackagePath;
+      console.log('rootPackagePath:', rootPackagePath);
+      if (!rootPackagePath || !fs.existsSync(filePath)) {
+        filePath = path.join(__dirname, '../../../../../package.json');
+      }
       if (!fs.existsSync(filePath)) {
         filePath = path.join(__dirname, '../../package.json');
       }
