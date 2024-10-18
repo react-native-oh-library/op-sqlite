@@ -19,14 +19,14 @@ export function opSqlitePlugin(rootPackagePath?: string, options: OnlineSignOpti
       // 插件主体
       console.log('hello opSqlitePlugin!');
       console.log(__dirname);
-      let useSQLCipher = false;
-      let useLibsql = false;
-      let useCRSQLite = false;
-      let performanceMode = '2';
-      let sqliteFlags = '';
-      let enableFTS5 = true;
-      let useSqliteVec = false;
-      let filePath = rootPackagePath;
+      let useSQLCipher: boolean = false;
+      let useLibsql: boolean = false;
+      let useCRSQLite: boolean = false;
+      let performanceMode: string = '2';
+      let sqliteFlags: string = '';
+      let enableFTS5: boolean = true;
+      let useSqliteVec: boolean = false;
+      let filePath: string = rootPackagePath;
       console.log('rootPackagePath:', rootPackagePath);
       if (!rootPackagePath || !fs.existsSync(filePath)) {
         filePath = path.join(__dirname, '../../../../../package.json');
@@ -36,8 +36,8 @@ export function opSqlitePlugin(rootPackagePath?: string, options: OnlineSignOpti
       }
       console.log('filePath', filePath);
       if (fs.existsSync(filePath)) {
-        let packageJson = require(filePath);
-        let opsqliteConfig = packageJson['op-sqlite'];
+        let packageJson: Object = require(filePath);
+        let opsqliteConfig: Object = packageJson['op-sqlite'];
         console.log('opsqliteConfig', opsqliteConfig ? opsqliteConfig : 'empty');
         if (opsqliteConfig) {
           useSQLCipher = opsqliteConfig['sqlcipher'];
@@ -77,8 +77,8 @@ export function opSqlitePlugin(rootPackagePath?: string, options: OnlineSignOpti
         console.log('[OP-SQLITE] Sqlite Vec enabled! ↗️');
       }
 
-      let cFlags = [];
-      let cppFlags = [];
+      let cFlags: string[] = [];
+      let cppFlags: string[] = [];
       if (useSQLCipher) {
         cFlags.push('-DOP_SQLITE_USE_SQLCIPHER=1');
         cppFlags.push('-DOP_SQLITE_USE_SQLCIPHER=1');
@@ -113,9 +113,9 @@ export function opSqlitePlugin(rootPackagePath?: string, options: OnlineSignOpti
       }
       console.log(cFlags.join(' '));
       console.log(cppFlags.join(' '));
-      const appContext = node.getContext(OhosPluginId.OHOS_HAP_PLUGIN) as OhosHapContext;
-      const buildProfileOpt = appContext.getBuildProfileOpt();
-      let argumentsArray = ['-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DANDROID_STL=c++_shared'];
+      const appContext: OhosHapContext = node.getContext(OhosPluginId.OHOS_HAP_PLUGIN) as OhosHapContext;
+      const buildProfileOpt: Object = appContext.getBuildProfileOpt();
+      let argumentsArray: string[] = ['-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DANDROID_STL=c++_shared'];
       argumentsArray.push('-DSQLITE_FLAGS=' + sqliteFlags);
       argumentsArray.push('-DUSE_SQLCIPHER=' + (useSQLCipher ? 1 : 0));
       argumentsArray.push('-DUSE_CRSQLITE=' + (useCRSQLite ? 1 : 0));

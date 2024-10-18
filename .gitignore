@@ -71,6 +71,7 @@ android/.cxx
 # HarmonyOS
 harmony/rn_op_sqlite/build
 harmony/rn_op_sqlite/oh_modules
+harmony/rn_op_sqlite/oh-package-lock.json5
 
 # Expo
 .expo/*
