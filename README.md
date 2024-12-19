@@ -1,11 +1,14 @@
 # @react-native-oh-tpl/op-sqlite
 
-## 文档地址 / Documentation URL 
+This project is based on [op-sqlite](https://github.com/OP-Engineering/op-sqlite)
 
-[中文 / Chinese](https://gitee.com/react-native-oh-library/usage-docs/blob/master/zh-cn/@OP-Engineering-op-sqlite.md)
+## Documentation
 
-## Codegen
+- [中文](https://gitee.com/react-native-oh-library/usage-docs/blob/master/zh-cn/op-engineering-op-sqlite.md)
 
-## 请悉知 / Acknowledgements
+- [English](https://gitee.com/react-native-oh-library/usage-docs/blob/master/en/op-engineering-op-sqlite.md)
 
-本项目基于 [The MIT License (MIT)](https://github.com/react-native-oh-library/op-sqlite/blob/sig/LICENSE) ，请自由地享受和参与开源。
+## License
+
+This library is licensed under [The MIT License (MIT)](https://github.com/OP-Engineering/op-sqlite/blob/main/LICENSE)
+

@@ -1,0 +1,11 @@
+[
+    {
+        "Name": "op-sqlite",
+        "License": "MIT License",
+        "License File": "https://github.com/OP-Engineering/op-sqlite/blob/main/LICENSE",
+        "Version Number": "8.0.2-0.0.2",
+        "Owner" : "xiafeng@huawei.com",
+        "Upstream URL": "https://github.com/OP-Engineering/op-sqlite",
+        "Description": "op-sqlite for react-native"
+    }
+]
